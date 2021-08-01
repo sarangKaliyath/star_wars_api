@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character</title>
+</head>
+
+<style>
+
+    .card {
+        margin: auto;
+        margin-top:9%;
+        background-color: transparent;
+        width: 25%;
+        height: 490px;
+        perspective: 1000px;
+    }
+
+    .main {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+    }
+
+    .front, .back, .main{
+        border-radius: 10px;
+    }
+
+    .card:hover .main {
+        transform: rotateY(180deg);
+    }
+
+    .front, .back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        background-color: #121212;
+        color: #6F6F6F;
+    }
+
+    .front {
+        text-align: center;
+        
+    }
+    .front>div{
+        margin-top: 220px;
+        font-size: 40px;
+    }
+
+    .back {
+        transform: rotateY(180deg);
+    }
+    body{
+        background-image: url("https://wallpapercave.com/wp/wp7153217.png");
+        background-size: 100%;
+    }
+    li{
+        list-style: none;
+        font-size: 25px;
+        margin-bottom: 10px;
+    }
+    ul li:first-child{
+        margin-top: 50px;
+    }
+
+</style>
+
+<body>
+    
+    <div class="card">
+        <div class="main">
+            <div class="front"></div>
+            <div class="back">
+
+                <ul>
+                    <li class="dob"></li>
+                    <li class="height"></li>
+                    <li class="mass"></li>
+                    <li class="gender"></li>
+                    <li class="planet"></li>
+                    <li class="species"></li>
+                    <li class="s_language"></li>
+                    <li class="s_classification"></li>
+                    <li class="s_lifeSpan"></li>
+                    <li class="starships"></li>
+                    
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+
+
+</html>
+
+<script>
+
+    let data = JSON.parse(localStorage.getItem("allData"));
+    let char_name = JSON.parse(localStorage.getItem("name"))
+
+    if(data.length ==1){
+
+        var newData = data[0];
+
+    }
+    else{
+
+        for(x of data){
+
+            if(x.name == char_name){
+                var newData = x;
+            }
+        }      
+    }   
+    
+    async function ship(){
+
+        if(newData.starships.length !=0){
+            
+            let data = newData.starships[0];
+
+            let res = await fetch(data);
+
+            let temp = await res.json();
+
+            return temp;
+        }
+            
+        return false;
+
+    }
+
+    async function planet(){
+
+        let data = newData.homeworld;
+        
+        let res = await fetch(data);
+
+        let temp = await res.json();
+        
+        return temp.name;
+
+    }
+
+
+    async function species(){
+
+        if(newData.species.length !=0){
+            let arr = [];
+
+            let data = newData.species[0];
+            
+            let res = await fetch(data);
+
+            let temp = await res.json();
+
+            arr.push(temp.name,temp.language,temp.classification,temp.average_lifespan);
+            
+            return arr;
+        }
+        return false;
+
+    };
+
+    let ship_temp = ship();
+    let planet_temp = planet();
+    let species_temp = species();
+
+    async function displayBack(){
+
+        let data = document.querySelectorAll("li");
+        console.log('data:', data)
+        
+        let planet = await planet_temp;
+
+        let species = await species_temp;
+
+        let ship = await ship_temp;
+        
+        
+
+        
+        data[0].innerHTML = `Dob: ${newData.birth_year}`;
+
+        data[1].innerHTML = `Height: ${newData.height}.cm`;
+
+        data[2].innerHTML = `Mass: ${newData.mass}.Kg`;
+
+        data[3].innerHTML = `Gender: ${newData.gender}`;
+
+        data[4].innerHTML = `Planet: ${planet}`;
+
+        if(species){
+
+            data[5].innerHTML = `Species: ${species[0]}`; 
+
+            data[6].innerHTML = `Language: ${species[1]}`;
+
+            data[7].innerHTML = `Class: ${species[2]}`;
+
+            data[8].innerHTML = `Life Span in years: ${species[3]}`;
+
+        }
+        else{
+            data[5].innerHTML = `Species: unknown`; 
+
+            data[6].innerHTML = `Language: unknown`;
+
+            data[7].innerHTML = `Class: unknown`;
+
+            data[8].innerHTML = `Life Span: unknown`;
+        }
+
+        
+        if(ship){
+            
+            data[9].innerHTML = `Starship: ${ship.name}`
+
+        }else{
+            data[9].innerHTML = "Starship: unknown"
+        }
+
+    }
+    displayBack();
+
+    function displayFront(){
+
+        let front = document.querySelector(".front");
+
+        let div = document.createElement("div");
+
+        div.innerHTML = newData.name;
+
+        front.appendChild(div);
+
+
+        let back = document.querySelector(".back");
+
+        let p_starship = document.createElement("img");
+
+    }
+
+    displayFront();
+
+    
+
+
+</script>
